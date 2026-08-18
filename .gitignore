@@ -1,0 +1,16 @@
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+.Rproj.user
+.Renviron
+renv/library/
+renv/staging/
+rsconnect/
+example_data/counts_example.csv
+example_data/metadata_example.csv
+*.Rproj
+*.tar.gz
+*.Rcheck/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,51 @@
+name: R application checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - name: Configure Bioconductor
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::shiny
+            any::bslib
+            any::DT
+            any::ggplot2
+            any::ggrepel
+            any::pheatmap
+            any::scales
+            any::testthat
+            bioc::DESeq2
+            bioc::SummarizedExperiment
+          cache-version: 1
+
+      - name: Run tests
+        run: testthat::test_dir("tests/testthat", reporter = "summary")
+        shell: Rscript {0}
+
+      - name: Parse all R source files
+        run: |
+          files <- c("app.R", list.files("R", pattern = "[.]R$", full.names = TRUE, recursive = TRUE))
+          invisible(lapply(files, parse))
+        shell: Rscript {0}

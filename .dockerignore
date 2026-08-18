@@ -1,0 +1,10 @@
+.git
+.github
+.Rhistory
+.RData
+.Rproj.user
+renv
+tests
+example_data/*.csv
+*.Rproj
+*.zip

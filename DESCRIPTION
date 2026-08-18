@@ -1,0 +1,23 @@
+Package: rnaseqexplorer
+Title: Interactive Bulk RNA-seq Differential Expression Explorer
+Version: 0.1.0
+Authors@R: person("Nishenthaharan", "Balachandran", role = c("aut", "cph"))
+Description: A Shiny application for validated bulk RNA-seq count input,
+    DESeq2 differential-expression modelling, quality control, publication-ready
+    visualisation, and reproducible result export.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.3.0)
+Imports:
+    bslib,
+    DESeq2,
+    DT,
+    ggplot2,
+    ggrepel,
+    pheatmap,
+    scales,
+    shiny,
+    SummarizedExperiment
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
