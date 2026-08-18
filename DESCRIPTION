@@ -5,7 +5,7 @@ Authors@R: person("Nishenthaharan", "Balachandran", role = c("aut", "cph"))
 Description: A Shiny application for validated bulk RNA-seq count input,
     DESeq2 differential-expression modelling, quality control, publication-ready
     visualisation, and reproducible result export.
-License: MIT + file LICENSE
+License: Apache License (>= 2)
 Encoding: UTF-8
 Depends: R (>= 4.3.0)
 Imports:

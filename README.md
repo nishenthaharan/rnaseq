@@ -153,4 +153,4 @@ Do not add access tokens or credentials to the repository. If GitHub requests au
 
 ## Licence
 
-MIT © 2026 Nishenthaharan Balachandran. See [LICENSE](LICENSE).
+Apache License 2.0. See [LICENSE](LICENSE).
