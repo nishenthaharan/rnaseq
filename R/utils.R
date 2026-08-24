@@ -68,3 +68,45 @@ build_provenance <- function(parameters) {
     ))
   )
 }
+
+format_manifest_value <- function(value) {
+  if (is.null(value) || !length(value)) return("")
+  if (is.logical(value)) value <- tolower(as.character(value))
+  paste(as.character(value), collapse = ", ")
+}
+
+provenance_to_text <- function(provenance) {
+  if (!is.list(provenance)) {
+    abort_user("Cannot create a manifest without a valid provenance object.")
+  }
+
+  parameters <- provenance$parameters %||% list()
+  packages <- provenance$packages %||% character()
+  parameter_lines <- if (length(parameters)) {
+    vapply(
+      names(parameters),
+      function(name) sprintf("%s: %s", name, format_manifest_value(parameters[[name]])),
+      character(1)
+    )
+  } else {
+    "none"
+  }
+  package_lines <- if (length(packages)) {
+    sprintf("%s: %s", names(packages), as.character(packages))
+  } else {
+    "none"
+  }
+
+  c(
+    "RNASeq Explorer analysis manifest",
+    sprintf("analysed_at: %s", format_manifest_value(provenance$analysed_at %||% "unknown")),
+    sprintf("r_version: %s", format_manifest_value(provenance$r_version %||% "unknown")),
+    sprintf("platform: %s", format_manifest_value(provenance$platform %||% "unknown")),
+    "",
+    "[parameters]",
+    parameter_lines,
+    "",
+    "[packages]",
+    package_lines
+  )
+}
