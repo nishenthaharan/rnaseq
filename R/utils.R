@@ -97,7 +97,7 @@ provenance_to_text <- function(provenance) {
     "none"
   }
 
-  c(
+  unname(c(
     "RNASeq Explorer analysis manifest",
     sprintf("analysed_at: %s", format_manifest_value(provenance$analysed_at %||% "unknown")),
     sprintf("r_version: %s", format_manifest_value(provenance$r_version %||% "unknown")),
@@ -108,5 +108,5 @@ provenance_to_text <- function(provenance) {
     "",
     "[packages]",
     package_lines
-  )
+  ))
 }
