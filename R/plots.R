@@ -173,7 +173,10 @@ top_heatmap_matrix <- function(analysis, n_genes = 30L) {
   # constant rows become zero and clipping prevents outliers dominating colour.
   matrix <- t(scale(t(matrix)))
   matrix[!is.finite(matrix)] <- 0
-  pmax(-2.5, pmin(2.5, matrix))
+  # Assign through [] so clipping cannot discard the matrix dimensions or
+  # gene/sample names (pmin()/pmax() copy attributes from their first input).
+  matrix[] <- pmax(-2.5, pmin(2.5, matrix))
+  matrix
 }
 
 plot_top_heatmap <- function(analysis, n_genes = 30L) {
