@@ -122,6 +122,64 @@ read_metadata <- function(path, original_name) {
 }
 
 validate_bundle <- function(counts, metadata, source_label = "Uploaded data") {
+  # Uploaded files are validated by their readers, but this constructor is
+  # also part of the programmatic API. Guard its structural contract here so
+  # downstream DESeq2 failures remain specific and actionable.
+  if (!is.matrix(counts) || !is.numeric(counts) || nrow(counts) < 1L || ncol(counts) < 2L) {
+    abort_user("Counts must be a numeric matrix with at least one gene and two samples.")
+  }
+  if (
+    is.null(rownames(counts)) ||
+      anyNA(rownames(counts)) ||
+      any(!nzchar(rownames(counts))) ||
+      anyDuplicated(rownames(counts))
+  ) {
+    abort_user("Count-matrix gene IDs must be present and unique.")
+  }
+  if (
+    is.null(colnames(counts)) ||
+      anyNA(colnames(counts)) ||
+      any(!nzchar(colnames(counts))) ||
+      anyDuplicated(colnames(counts))
+  ) {
+    abort_user("Count-matrix sample names must be present and unique.")
+  }
+  if (anyNA(counts) || any(!is.finite(counts))) {
+    abort_user("Count-matrix values must be finite and cannot be missing.")
+  }
+  if (
+    any(counts < 0) ||
+      any(counts > .Machine$integer.max) ||
+      any(counts != round(counts))
+  ) {
+    abort_user("Count-matrix values must be non-negative integers within R's supported range.")
+  }
+
+  if (!is.data.frame(metadata)) {
+    abort_user("Metadata must be supplied as a data frame.")
+  }
+  required_metadata <- c("sample_id", "condition")
+  missing_metadata_columns <- setdiff(required_metadata, names(metadata))
+  if (length(missing_metadata_columns)) {
+    abort_user(sprintf(
+      "Metadata is missing required column(s): %s.",
+      paste(missing_metadata_columns, collapse = ", ")
+    ))
+  }
+
+  metadata$sample_id <- trimws(as.character(metadata$sample_id))
+  metadata$condition <- trimws(as.character(metadata$condition))
+  if (
+    anyNA(metadata$sample_id) ||
+      any(!nzchar(metadata$sample_id)) ||
+      anyDuplicated(metadata$sample_id)
+  ) {
+    abort_user("Metadata sample_id values must be present and unique.")
+  }
+  if (anyNA(metadata$condition) || any(!nzchar(metadata$condition))) {
+    abort_user("Metadata condition values must be present.")
+  }
+
   count_samples <- colnames(counts)
   metadata_samples <- metadata$sample_id
 
@@ -141,6 +199,7 @@ validate_bundle <- function(counts, metadata, source_label = "Uploaded data") {
 
   metadata <- metadata[match(count_samples, metadata$sample_id), , drop = FALSE]
   rownames(metadata) <- metadata$sample_id
+  storage.mode(counts) <- "integer"
 
   structure(
     list(counts = counts, metadata = metadata, source = source_label),

@@ -86,3 +86,38 @@ test_that("metadata parsing rejects headers that standardise to blanks", {
 
   expect_error(read_metadata(path, basename(path)), "letter or number")
 })
+
+test_that("bundle validation rejects malformed count structures", {
+  metadata <- data.frame(
+    sample_id = c("sample_a", "sample_b"),
+    condition = c("Control", "Treated"),
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(validate_bundle(data.frame(sample_a = 1:2), metadata), "numeric matrix")
+
+  unnamed_counts <- matrix(1L, nrow = 2L, ncol = 2L)
+  expect_error(validate_bundle(unnamed_counts, metadata), "gene IDs")
+
+  fractional_counts <- matrix(
+    c(1, 2, 3, 4.5),
+    nrow = 2L,
+    dimnames = list(c("gene_a", "gene_b"), c("sample_a", "sample_b"))
+  )
+  expect_error(validate_bundle(fractional_counts, metadata), "non-negative integers")
+})
+
+test_that("bundle validation rejects malformed metadata structures", {
+  counts <- matrix(
+    1L,
+    nrow = 2L,
+    ncol = 2L,
+    dimnames = list(c("gene_a", "gene_b"), c("sample_a", "sample_b"))
+  )
+
+  expect_error(validate_bundle(counts, list(sample_id = c("sample_a", "sample_b"))), "data frame")
+  expect_error(
+    validate_bundle(counts, data.frame(sample_id = c("sample_a", "sample_b"))),
+    "missing required column"
+  )
+})
