@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: DESeq2 documentation
+    url: https://bioconductor.org/packages/DESeq2
+    about: Check the upstream statistical-method documentation before reporting a DESeq2 usage question.

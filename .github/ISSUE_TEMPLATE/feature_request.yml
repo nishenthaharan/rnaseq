@@ -1,0 +1,33 @@
+name: Feature request
+description: Propose a focused scientific, visualisation, or usability improvement
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    attributes:
+      label: Problem or research need
+      description: Explain the user or analysis problem rather than only the proposed interface.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed solution
+      description: Describe inputs, outputs, validation, and expected interpretation.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Scientific rationale
+      description: Link relevant package documentation, standards, or publications when applicable.
+  - type: textarea
+    attributes:
+      label: Acceptance criteria
+      description: List objective conditions that would make the work complete.
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Scope checks
+      options:
+        - label: The proposal can be implemented without committing sensitive datasets.
+          required: true
