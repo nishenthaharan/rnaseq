@@ -20,15 +20,31 @@ validate_analysis_parameters <- function(bundle, reference, target, use_batch) {
   }
 }
 
+is_finite_numeric_scalar <- function(value) {
+  is.numeric(value) && length(value) == 1L && !is.na(value) && is.finite(value)
+}
+
+is_supported_integer_scalar <- function(value) {
+  is_finite_numeric_scalar(value) &&
+    value <= .Machine$integer.max &&
+    value == floor(value)
+}
+
 validate_thresholds <- function(min_count, min_samples, alpha, lfc_threshold, n_samples) {
-  values <- c(min_count, min_samples, alpha, lfc_threshold)
-  if (length(values) != 4L || anyNA(values) || any(!is.finite(values))) {
+  # Validate type and length before arithmetic so programmatic callers receive
+  # the same user-facing errors as values supplied through the Shiny controls.
+  values <- list(min_count, min_samples, alpha, lfc_threshold)
+  if (!all(vapply(values, is_finite_numeric_scalar, logical(1)))) {
     abort_user("All statistical thresholds must be finite numeric values.")
   }
-  if (min_count < 0 || min_count != as.integer(min_count)) {
+  if (!is_supported_integer_scalar(min_count) || min_count < 0) {
     abort_user("Minimum raw count must be a non-negative integer.")
   }
-  if (min_samples < 1 || min_samples > n_samples || min_samples != as.integer(min_samples)) {
+  if (
+    !is_supported_integer_scalar(min_samples) ||
+      min_samples < 1 ||
+      min_samples > n_samples
+  ) {
     abort_user(sprintf("Minimum samples must be an integer between 1 and %d.", n_samples))
   }
   if (alpha <= 0 || alpha >= 1) {
