@@ -121,6 +121,10 @@ docker run --rm -p 3838:3838 rnaseq-explorer-r
 
 Open <http://localhost:3838>.
 
+The container includes an HTTP health check for Shiny Server. Pull requests
+that change the container, application source, or runtime dependencies build
+the complete image through GitHub Actions before merge.
+
 ## Run tests
 
 ```r

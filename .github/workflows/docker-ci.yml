@@ -1,0 +1,38 @@
+name: Docker image checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - DESCRIPTION
+      - install_dependencies.R
+      - app.R
+      - R/**
+      - www/**
+      - .github/workflows/docker-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build application image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: rnaseq-explorer:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

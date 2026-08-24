@@ -1,6 +1,7 @@
 FROM rocker/shiny:4.5.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
     libcurl4-openssl-dev \
     libfontconfig1-dev \
     libfreetype6-dev \
@@ -9,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg-dev \
     libpng-dev \
     libssl-dev \
-    libtiff5-dev \
+    libtiff-dev \
     libxml2-dev \
     zip \
     && rm -rf /var/lib/apt/lists/*
@@ -23,5 +24,8 @@ RUN chown -R shiny:shiny /srv/shiny-server
 
 USER shiny
 EXPOSE 3838
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD curl --fail --silent http://localhost:3838/ > /dev/null || exit 1
 
 CMD ["/usr/bin/shiny-server"]
