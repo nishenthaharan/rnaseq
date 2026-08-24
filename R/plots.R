@@ -1,3 +1,18 @@
+validate_plot_count <- function(value, label) {
+  if (
+    !is.numeric(value) ||
+      length(value) != 1L ||
+      is.na(value) ||
+      !is.finite(value) ||
+      value < 1 ||
+      value > .Machine$integer.max ||
+      value != floor(value)
+  ) {
+    abort_user(sprintf("%s must be a positive integer.", label))
+  }
+  as.integer(value)
+}
+
 plot_library_sizes <- function(analysis) {
   data <- data.frame(
     sample_id = colnames(analysis$raw_counts),
@@ -66,9 +81,13 @@ plot_sample_correlation <- function(analysis) {
 }
 
 plot_volcano <- function(analysis, label_count = 12L) {
+  label_count <- validate_plot_count(label_count, "Volcano label count")
   data <- analysis$result
   data$minus_log10_padj <- -log10(pmax(data$adjusted_p_value, .Machine$double.xmin, na.rm = FALSE))
   data$minus_log10_padj[is.na(data$minus_log10_padj)] <- 0
+
+  # Results are ordered by adjusted P-value in run_deseq_analysis(); selecting
+  # from significant rows first keeps labels focused on the strongest signals.
   label_candidates <- data[data$classification != "Not significant", , drop = FALSE]
   label_candidates <- utils::head(label_candidates, label_count)
   thresholds <- analysis$parameters
@@ -137,6 +156,10 @@ plot_dispersion <- function(analysis) {
 }
 
 top_heatmap_matrix <- function(analysis, n_genes = 30L) {
+  n_genes <- validate_plot_count(n_genes, "Number of heatmap genes")
+
+  # Prefer genes with an estimable adjusted P-value. If no differential test
+  # is estimable, fall back to the most variable transformed expression rows.
   ranked <- analysis$result[!is.na(analysis$result$adjusted_p_value), , drop = FALSE]
   if (nrow(ranked)) {
     genes <- utils::head(ranked$gene_id, min(n_genes, nrow(ranked)))
@@ -145,9 +168,15 @@ top_heatmap_matrix <- function(analysis, n_genes = 30L) {
     genes <- utils::head(names(sort(variance, decreasing = TRUE)), n_genes)
   }
   matrix <- analysis$transformed[genes, , drop = FALSE]
+
+  # Row z-scores display relative expression patterns rather than abundance;
+  # constant rows become zero and clipping prevents outliers dominating colour.
   matrix <- t(scale(t(matrix)))
   matrix[!is.finite(matrix)] <- 0
-  pmax(-2.5, pmin(2.5, matrix))
+  # Assign through [] so clipping cannot discard the matrix dimensions or
+  # gene/sample names (pmin()/pmax() copy attributes from their first input).
+  matrix[] <- pmax(-2.5, pmin(2.5, matrix))
+  matrix
 }
 
 plot_top_heatmap <- function(analysis, n_genes = 30L) {
