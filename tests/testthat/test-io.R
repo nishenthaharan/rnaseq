@@ -55,3 +55,34 @@ test_that("count-file parsing rejects normalised values", {
 
   expect_error(read_count_matrix(path, basename(path)), "raw integer counts")
 })
+
+test_that("count-file parsing rejects values outside R's integer range", {
+  path <- tempfile(fileext = ".csv")
+  on.exit(unlink(path), add = TRUE)
+  utils::write.csv(
+    data.frame(
+      gene_id = c("a", "b"),
+      sample_1 = c(as.double(.Machine$integer.max) + 1, 3),
+      sample_2 = c(2, 4)
+    ),
+    path,
+    row.names = FALSE
+  )
+
+  expect_error(read_count_matrix(path, basename(path)), "supported integer range")
+})
+
+test_that("metadata parsing rejects headers that standardise to blanks", {
+  path <- tempfile(fileext = ".csv")
+  on.exit(unlink(path), add = TRUE)
+  metadata <- data.frame(
+    sample_id = c("sample_a", "sample_b"),
+    condition = c("Control", "Treated"),
+    invalid = c("x", "y"),
+    check.names = FALSE
+  )
+  names(metadata)[3L] <- "!!!"
+  utils::write.csv(metadata, path, row.names = FALSE)
+
+  expect_error(read_metadata(path, basename(path)), "letter or number")
+})
