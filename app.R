@@ -210,6 +210,12 @@ ui <- bslib::page_navbar(
         full_screen = FALSE
       ),
       analysis_card(
+        "Analysis manifest",
+        shiny::p("Human-readable parameters, R version, platform, and package versions for the completed analysis."),
+        shiny::downloadButton("download_manifest", "Download TXT", class = "btn-outline-primary"),
+        full_screen = FALSE
+      ),
+      analysis_card(
         "Reproducibility",
         shiny::verbatimTextOutput("session_details"),
         full_screen = FALSE
@@ -436,6 +442,14 @@ server <- function(input, output, session) {
   output$download_rds <- shiny::downloadHandler(
     filename = function() sprintf("rnaseq-analysis-%s.rds", comparison_stub(current_analysis())),
     content = function(file) saveRDS(current_analysis(), file, compress = "xz")
+  )
+
+  output$download_manifest <- shiny::downloadHandler(
+    filename = function() sprintf("rnaseq-manifest-%s.txt", comparison_stub(current_analysis())),
+    content = function(file) {
+      writeLines(provenance_to_text(current_analysis()$provenance), file)
+    },
+    contentType = "text/plain"
   )
 
   output$download_plots <- shiny::downloadHandler(
