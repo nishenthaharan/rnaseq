@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a reproducible problem in the RNA-seq application
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: checkboxes
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I searched existing issues for the same problem.
+          required: true
+        - label: I removed patient, confidential, and unpublished data.
+          required: true
+  - type: textarea
+    attributes:
+      label: Problem
+      description: Describe what happened and where in the application it occurred.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction steps
+      description: Use simulated or anonymised data and provide the smallest reproducible sequence of steps.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: R and application environment
+      placeholder: "R 4.5.1, Ubuntu 24.04, Docker or local installation"
+  - type: textarea
+    attributes:
+      label: Relevant logs
+      description: Paste only non-sensitive error messages or CI output.
+      render: shell
