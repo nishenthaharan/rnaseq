@@ -1,8 +1,26 @@
 generate_demo_bundle <- function(seed = 20260818L, n_genes = 1200L) {
+  if (length(seed) != 1L || !is.numeric(seed) || is.na(seed) || !is.finite(seed)) {
+    abort_user("The simulated dataset seed must be one finite numeric value.")
+  }
   if (length(n_genes) != 1L || is.na(n_genes) || n_genes < 10L) {
     abort_user("The simulated dataset requires at least 10 genes.")
   }
   n_genes <- as.integer(n_genes)
+
+  had_random_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  previous_random_seed <- if (had_random_seed) {
+    get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  } else {
+    NULL
+  }
+  on.exit({
+    if (had_random_seed) {
+      assign(".Random.seed", previous_random_seed, envir = .GlobalEnv)
+    } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+      rm(".Random.seed", envir = .GlobalEnv)
+    }
+  }, add = TRUE)
+
   set.seed(seed)
 
   metadata <- data.frame(
