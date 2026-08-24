@@ -46,3 +46,22 @@ test_that("rank-deficient designs are rejected", {
     "not full rank"
   )
 })
+
+test_that("statistical thresholds reject malformed scalar inputs cleanly", {
+  expect_error(
+    validate_thresholds("10", 2L, 0.05, 1, n_samples = 8L),
+    "finite numeric values"
+  )
+  expect_error(
+    validate_thresholds(c(10, 20), 2L, 0.05, 1, n_samples = 8L),
+    "finite numeric values"
+  )
+  expect_error(
+    validate_thresholds(.Machine$integer.max + 1, 2L, 0.05, 1, n_samples = 8L),
+    "non-negative integer"
+  )
+  expect_error(
+    validate_thresholds(10L, .Machine$integer.max + 1, 0.05, 1, n_samples = 8L),
+    "integer between 1 and 8"
+  )
+})
