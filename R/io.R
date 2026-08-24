@@ -65,6 +65,9 @@ read_count_matrix <- function(path, original_name) {
   if (any(counts < 0)) {
     abort_user("Raw RNA-seq counts cannot be negative.")
   }
+  if (any(counts > .Machine$integer.max)) {
+    abort_user("Count values exceed R's supported integer range.")
+  }
   if (any(abs(counts - round(counts)) > sqrt(.Machine$double.eps))) {
     abort_user("DESeq2 requires raw integer counts. TPM, FPKM, and other normalised values are not valid inputs.")
   }
@@ -77,6 +80,9 @@ read_metadata <- function(path, original_name) {
   metadata <- read_tabular_file(path, original_name)
   names(metadata) <- standardise_metadata_names(names(metadata))
 
+  if (any(!nzchar(names(metadata)))) {
+    abort_user("Metadata column names must contain at least one letter or number.")
+  }
   if (anyDuplicated(names(metadata))) {
     abort_user("Metadata column names must remain unique after standardisation.")
   }
